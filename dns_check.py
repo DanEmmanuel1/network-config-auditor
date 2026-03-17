@@ -1,4 +1,4 @@
-﻿import subprocess
+import subprocess
 from rich.console import Console
 
 console = Console()
@@ -27,14 +27,17 @@ def _check_dns():
                     ip = parts[-1].strip()
                     if ip:
                         dns_servers.append(ip)
+
         if not dns_servers:
-            console.print("[yellow]No DNS servers found[/yellow]")
+            console.print("[yellow]⚠ Could not detect DNS servers[/yellow]")
             return
+
         for dns in dns_servers:
             if dns in SAFE_DNS:
                 console.print(f"[green]✔ {dns} — known safe DNS provider[/green]")
             else:
                 console.print(f"[yellow]⚠ {dns} — unknown DNS server (verify this is trusted)[/yellow]")
+
     except Exception as e:
         console.print(f"[red]Error checking DNS: {e}[/red]")
 
