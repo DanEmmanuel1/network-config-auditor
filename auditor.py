@@ -1,4 +1,6 @@
 import sys
+import os
+from datetime import datetime
 from rich.console import Console
 from rich.panel import Panel
 from port_scanner import run_port_scan
@@ -9,6 +11,8 @@ from firewall_check import run_firewall_check
 
 console = Console()
 
+REPORT_FILE = "network_report.txt"
+
 def print_banner():
     console.print(Panel.fit(
         "[bold cyan]Network Config Auditor[/bold cyan]\n"
@@ -16,6 +20,25 @@ def print_banner():
         "[white]Auditing: Ports | SSH | Interfaces | DNS | Firewall[/white]",
         border_style="cyan"
     ))
+
+def save_report(target, findings):
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    lines = []
+    lines.append("=" * 60)
+    lines.append(f"Network Config Audit Report")
+    lines.append(f"Generated:  {now}")
+    lines.append(f"Target:     {target}")
+    lines.append("=" * 60)
+    lines.append("")
+    for item in findings:
+        lines.append(f"  {item}")
+    lines.append("")
+    lines.append("=" * 60)
+
+    with open(REPORT_FILE, "a", encoding="utf-8", errors="replace") as f:
+        f.write("\n".join(lines) + "\n")
+
+    console.print(f"[green]✔ Report saved to {REPORT_FILE}[/green]")
 
 def main():
     print_banner()
@@ -34,6 +57,15 @@ def main():
     run_firewall_check()
 
     console.print("\n[bold green]═══ AUDIT COMPLETE ═══[/bold green]\n")
+
+    # Save report
+    findings = [
+        f"Target scanned: {target}",
+        "Modules run: Port Scanner, SSH Auditor, Interface Check, DNS Check, Firewall Check",
+        f"Audit completed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        "See terminal output above for full details",
+    ]
+    save_report(target, findings)
 
 if __name__ == "__main__":
     main()
